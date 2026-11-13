@@ -39,7 +39,7 @@ const CONFIG = {
   ENVIRONMENTS: {
     WORK: {
       FOLDER_ID: {
-        AURREKONTUA: '1ft3nmaIeermAabIjIJ4lUZ5Xg3bXCxVR',
+        AURREKONTUA: '1sAMkBFc6RDqxPOTwfSb-tJSSvOeu5PL_',
         FAKTURA: '1o1xEafN6gtfoB3FuiVBH_JPgMWwGo1CO',
         KONTRATUA: '1jbJWbGPdzyES-I8PRZHV3bkrErRp5vFO'
       },

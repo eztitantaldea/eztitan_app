@@ -51,11 +51,10 @@ const Docs = {
       map[`{{G_PREZIO_${i + 1}}}`] = g.price != null ? Utils.formatEuro(g.price) : "";
     }
 
-
     let nombreFinal = ''
     let descriptionData = {}
     if(doctype === 'aurrekontua'){
-      [descriptionData, nombreFinal] = this.createAurrekontua(data, rawData)
+      [descriptionData, nombreFinal, folder] = this.createAurrekontua(data, rawData, folderId)
     }else if(doctype === 'faktura'){
       [nombreFinal, folder] = this.createFaktura(rawData, map, folderId)
     }else if(doctype === 'kontratua'){
@@ -84,12 +83,14 @@ const Docs = {
     };
   },
 
-  createAurrekontua(data, rawData) {
+  createAurrekontua(data, rawData, folderId) {
 
     let nombreFinal = data.dokumentuIzena;
     if (data.incluirIraupena) nombreFinal += ` - ${data.iraupena}h`;
     if (data.incluirEkipoa) nombreFinal += ` - ${CONFIG.TEXTS.EKIPOA.TITLE[data.ekipo.type]}`;
     if (data.incluirHaizeak) nombreFinal += ` - Haizeak`;
+    
+    emitido_folder = getOrCreateEmitidoFolder(folderId, data.date.urtea, "")
 
     const descriptionData = { ...rawData };
 
@@ -98,7 +99,7 @@ const Docs = {
     delete descriptionData.incluirHaizeak;
     delete descriptionData.incluirIraupena;
 
-    return [descriptionData, nombreFinal]
+    return [descriptionData, nombreFinal, emitido_folder]
   },
   
   createFaktura(rawData, map, folderId) {
@@ -171,9 +172,11 @@ function getOrCreateEmitidoFolder(folderID, year, quarter) {
     4: '4o trimestre'
   };
 
-  const yearFolder = getOrCreateSubfolder(root, String(year));
-  const quarterFolder = getOrCreateSubfolder(yearFolder, quarters_text[quarter]);
-  const emitidoFolder = getOrCreateSubfolder(quarterFolder, 'Emitidos');
+  emitidoFolder = getOrCreateSubfolder(root, String(year));
+  if(quarter){
+    emitidoFolder = getOrCreateSubfolder(emitidoFolder, quarters_text[quarter]);
+    emitidoFolder = getOrCreateSubfolder(emitidoFolder, 'Emitidos');
+  }
 
   return emitidoFolder;
 }

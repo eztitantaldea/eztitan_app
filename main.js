@@ -49,7 +49,11 @@ function doGet(e) {
 
 function submitDokumentua(rawData, doctype) {
   try {
-    const work = "WORK"
+    const url = ScriptApp.getService().getUrl()
+    work = "WORK";
+    if(url.includes('/dev')){
+      work = "PLAY";
+    }
     const env_data = CONFIG.ENVIRONMENTS[work];
 
     const pricing = new Pricing(env_data);
