@@ -1,0 +1,49 @@
+<div class="field apartado checkbox-group hidden" id="<?= docType + '-ordutegia-field' ?>">
+  <div class="flex-row-title" id="<?= docType + '-ordutegia-title' ?>">
+    <label>Ordutegia <span class="required">*</span></label>
+  </div>
+  <div class="pases-field">
+    <!-- 1. Pasea -->
+    <div class="pase-horario" id="<?= docType + '-pase1' ?>">
+      <button class="pase-button pase-add" id="<?= docType + '-btnAddPase' ?>" type="button"><b>+</b>
+      </button>
+      
+      <div class="pase-container-field" style="padding: 30px">
+        <div class="pase-titulo">1. Pasea</div>
+
+        <div class="horario-row">
+          <div class="time-field">
+            <label for="<?= docType + '-inicioPase1' ?>">Hasiera</label>
+            <input type="time" id="<?= docType + '-inicioPase1' ?>" name="inicioPase1">
+          </div>
+
+          <div class="time-field">
+            <label for="finPase1">Amaiera</label>
+            <input type="time" id="finPase1" name="finPase1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Pasea -->
+    <div class="pase-horario hidden" id="<?= docType + '-pase2' ?>">
+      <button class="pase-button pase-remove" id="<?= docType + '-btnRemovePase' ?>" type="button"><b>X</b>
+      </button>
+      <div class="pase-container-field" style="padding: 30px">
+        <div class="pase-titulo">2. Pasea</div>
+
+        <div class="horario-row">
+          <div class="time-field">
+            <label for="<?= docType + '-inicioPase2' ?>">Hasiera</label>
+            <input type="time" id="<?= docType + '-inicioPase2' ?>" name="inicioPase2">
+          </div>
+
+          <div class="time-field">
+            <label for="<?= docType + '-finPase2' ?>">Amaiera</label>
+            <input type="time" id="<?= docType + '-finPase2' ?>" name="finPase2">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

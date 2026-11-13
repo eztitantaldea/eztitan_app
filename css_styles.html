@@ -1,0 +1,857 @@
+<style>
+
+body {
+    font-family: Roboto, Arial, sans-serif;
+    background-color: #bdb5da;
+    margin: 0;
+    padding: 32px 0;
+    color: #202124;
+    line-height: 1.5;
+  }
+
+  .card {
+    max-width: 90vw;
+    width: 875px;
+    margin: auto;
+  }
+
+  h2 {
+    font-size: 80px; /* letra fija */
+    font-weight: 400;
+    margin: 0 0 24px 0;
+  }
+
+  .field {
+    margin-bottom: 24px;
+  }
+
+  .apartado {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(60, 64, 67, .3), 0 1px 3px rgba(60, 64, 67, .15);
+    padding: 60px 60px 60px;
+  }
+
+  label {
+    display: block;
+    font-size: 40px; /* letra fija */
+    font-weight: 500;
+  }
+
+  .label-title {
+    margin-bottom: 50px;
+  }
+
+  input,
+  select {
+    font-size: 38px; /* letra fija */
+    padding: 14px 12px;
+    border: none;
+    border-bottom: 1px solid #dadce0;
+    outline: none;
+    background: transparent;
+    transition: border-color .2s;
+  }
+
+  input:focus,
+  select:focus {
+    border-bottom: 2px solid #1a73e8;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+  }
+
+  /* Hacer checkboxes grandes estilo Google Forms */
+  .checkbox-group input[type="checkbox"] {
+    display: none; /* ocultamos el checkbox original */
+  }
+
+  .checkbox-option {
+    position: relative;
+    padding-left: 50px; /* espacio para el nuevo checkbox */
+    cursor: pointer;
+    font-size: 38px; /* tamaño de texto grande */
+    user-select: none;
+    margin: 0px 0px 0px 35px;
+  }
+
+  .checkbox-option-inner {
+    margin: 0px 0px 40px 35px;
+  }
+
+  .radio-option-inner {
+    margin: 0px 0px 40px 0px;
+  }
+
+
+  /* Cuadrado grande que simula el checkbox */
+  .checkbox-group .checkbox-option::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50px;  /* ancho del checkbox */
+    height: 50px; /* alto del checkbox */
+    border: 2px solid #dadce0;
+    border-radius: 4px;
+    background-color: #fff;
+    box-sizing: border-box;
+    transition: background 0.2s, border-color 0.2s;
+    margin: 0px 0px 0px -35px;
+  }
+
+  /* Cuando el checkbox real está marcado */
+  .checkbox-group input[type="checkbox"]:checked + .checkbox-option::before {
+    background-color: rgb(103, 58, 183);
+    border-color: #1a73e8;
+  }
+
+  /* Agregar “check mark” cuando está marcado */
+  .checkbox-group input[type="checkbox"]:checked + .checkbox-option::after {
+    content: "✔"; /* marca de check */
+    position: absolute;
+    left: 6px;
+    top: -2px;
+    color: white;
+    font-size: 50px;
+    margin: -10px 0px 0px -35px;
+  }
+
+  .k {
+    margin-bottom: 12px;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .main-menu {
+    position: fixed;
+    inset: 0;                      /* ocupa toda la pantalla */
+    display: flex;
+    flex-direction: column;        /* uno debajo del otro */
+    justify-content: center;       /* centrado vertical */
+    align-items: center;           /* centrado horizontal */
+    gap: 40px;
+  }
+
+  .main-menu button {
+    width: 80vw;
+    aspect-ratio: 1 / 1;
+    max-width: 600px;
+    max-height: 28vh;
+    background-color: #5c2483;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 70px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  button {
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 30px 24px;
+    font-size: 38px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .add-button {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border: 2px solid #1a73e8;
+    color: #1a73e8;
+  }
+
+  .generate-button {
+    background-color: #1a73e8;
+  }
+
+  button:disabled {
+    background-color: #9aa0a6;
+    cursor: default;
+  }
+
+  .ok {
+    margin-top: 16px;
+    font-size: 32px; /* letra fija */
+    color: #188038;
+  }
+
+  .error {
+    margin-top: 16px;
+    font-size: 32px; /* letra fija */
+    color: #d93025;
+  }
+
+  .required {
+    color: #db372d;
+  }
+  .otros-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+    align-items: center;
+    border: 1px solid #dadce0;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .otros-item input[type="text"],
+  .otros-item input[type="number"],
+  .otros-item select {
+    flex: 1;
+    padding: 20px;
+  }
+
+  .delete-button {
+    flex-shrink: 0;
+    background-color: #d93025;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 20px 12px;
+    cursor: pointer;
+  }
+
+  .delete-button:hover {
+    background-color: #b52b20;
+  }
+
+  .secondary-text {
+    font-size: 38px;
+  }
+
+  .checkbox-with-input {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* espacio entre checkbox, label y input */
+  }
+
+  .checkbox-with-input .sonExtraInput {
+    width: 150px;
+    margin: 0px 0px 40px 0px;
+  }
+
+  .fechas-group {
+    display: flex;
+    gap: 20px; /* espacio entre los dos campos */
+    flex-wrap: wrap; /* para que en móvil bajen a otra línea si no caben */
+    align-items: flex-start;
+  }
+
+  .fechas-group .fecha-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* que cada input ocupe el mismo ancho */
+  }
+
+  .fechas-group input[type="date"] {
+    padding: 14px 12px;
+  }
+
+  .fecha-item input {
+    width: 300px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 20px;       /* espacio entre el radio y el texto */
+    margin-bottom: 12px;
+    font-size: 32px; /* tamaño grande como Google Forms */
+  }
+
+  .radio-option input[type="radio"] {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    margin: -35px 0px 0px 0px;
+  }
+
+  .money {
+    margin: 0px 0px 40px 0px;
+  }
+
+  .flex-row-title {
+    display: flex;
+    justify-content: space-between; /* izquierda y derecha */
+    align-items: center;
+    margin-bottom: 50px; /* espacio con las opciones */
+  }
+
+  .flex-row-option {
+    display: flex;
+    justify-content: space-between; /* izquierda y derecha */
+    align-items: center;
+  }
+
+  .pdf-toggle {
+    width: 160px;
+    padding: 12px 24px;
+    font-size: 30px;
+    font-weight: 500;
+    background-color: #f1f3f4;
+    border: 2px solid #dadce0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #202124;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .pdf-toggle.active {
+    background-color: #1a73e8;
+    color: #ffffff;
+    border-color: #1a73e8;
+  }
+
+  .pdf-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #btnIncluirHaizeak {
+    margin: 0px 0px 40px 35px;
+  }
+
+  .sonExtraInput:disabled {
+    background-color: #f1f3f4;
+    border-bottom: 1px dashed #dadce0;
+    opacity: 0.6;
+  }
+
+  .toast {
+    position: fixed;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 400px;
+    max-width: 90vw;
+    padding: 24px 32px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+  }
+
+  .toast.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .toast.success {
+    background-color: #188038; /* verde Google */
+  }
+
+  .toast.error {
+    background-color: #d93025; /* rojo Google */
+  }
+
+  .toast-close {
+    display: contents;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    margin-left: 20px;
+  }
+
+  .toast.loading {
+    background-color: #1a73e8; /* azul Google */
+  }
+
+  .toast.loading .toast-close {
+    display: none;
+  }
+
+  .toast-spinner {
+    width: 32px;
+    height: 32px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 20px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .toast-left {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-button {
+    max-width: 90vw;
+    background-color: #5c2483;
+    display: block;
+    width: 875px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 20px;
+    font-size: 60px;
+    font-weight: 500;
+    color: #fff;
+    border: 2px solid #5c2483;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .cancel-menu-button {
+    background-color: #fff;
+    color: #d93025;
+    border: 2px solid #d93025;
+    width: auto;
+    font-size: 38px;
+  }
+
+  .opcion-presupuesto-selector {
+    width: 100%;
+    font-size: 24px;
+  }
+
+  #presupuestoButtons button {
+    padding: 20px 40px;
+    font-size: 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+  }
+
+  #btnViewPDF {
+    background-color: #1a73e8;
+    color: white;
+  }
+
+  #btnDownloadPDF {
+    background-color: #188038;
+    color: white;
+    margin-left: 10px;
+  }
+
+  .pdf-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .pdf-modal.hidden {
+    display: none;
+  }
+
+  .pdf-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    height: 90%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pdf-modal-content iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    pointer-events: none;
+  }
+
+  .pdf-close {
+    font-size: 30px;
+    background: #ff5c5c;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s;
+  }
+
+  .pdf-close:hover {
+    background: #ff7b7b;
+  }
+
+  .kontratua-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    font-size: 32px;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .kontratua-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .kontratua-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    font-size: 32px;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .faktura-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    font-size: 32px;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .faktura-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .faktura-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    font-size: 32px;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .presupuesto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    font-size: 32px;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .presupuesto-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .presupuesto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    font-size: 32px;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .presupuesto-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .presupuesto-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+    flex: 1;
+  }
+
+  .faktura-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+    flex: 1;
+  }
+
+  .kontratua-name {
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+    flex: 1;
+  }
+
+  .presupuesto-actions {
+    display: flex;
+    //flex-direction: row;   /* explícito */
+    gap: 12px;             
+    flex-shrink: 0;
+  }
+
+  .presupuesto-actions button {
+    padding: 10px 14px;
+    font-size: 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    transition: background 0.2s;
+  }
+
+  .faktura-actions {
+    display: flex;
+    //flex-direction: row;   /* explícito */
+    gap: 12px;             
+    flex-shrink: 0;
+  }
+
+  .faktura-actions button {
+    padding: 10px 14px;
+    font-size: 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    transition: background 0.2s;
+  }
+
+  .kontratua-actions {
+    display: flex;
+    //flex-direction: row;   /* explícito */
+    gap: 12px;             
+    flex-shrink: 0;
+  }
+
+  .kontratua-actions button {
+    padding: 10px 14px;
+    font-size: 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    transition: background 0.2s;
+  }
+
+  .button-icon {
+    width: 36px;
+    height: 36px;
+    fill: white;
+  }
+
+  button[data-action="view"] {
+    background-color: #4da3ff;
+  }
+
+  button[data-action="view"]:hover {
+    background-color: #66b0ff;
+  }
+
+  button[data-action="download"] {
+    background-color: #4caf50;
+  }
+
+  button[data-action="download"]:hover {
+    background-color: #66c16f;
+  }
+
+  button[data-action="delete"] {
+    background-color: #ff5c5c;
+  }
+
+  button[data-action="delete"]:hover {
+    background-color: #ff7b7b;
+  }
+
+  .dokumentuakList {
+    background-color: #f8f4ff; /* un lilita suave diferente del formulario */
+    border: 2px solid #5c2483; /* color morado del menú */
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 40px 40px;
+    margin-top: 40px;
+  }
+
+  .dokumentuakList h2 {
+    color: #5c2483;
+    font-size: 48px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #5c2483;
+    padding-bottom: 12px;
+  }
+
+  .pdf-modal-header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    z-index: 2;
+  }
+
+  #submenuFactura {
+      display: flex;
+      justify-content: center;    
+      gap: 40px;                  
+      margin-bottom: 40px;
+  }
+
+  #submenuFactura button {
+    background-color: #5c2483;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 50px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  #submenuFactura button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  }
+
+  #modalSeleccionPresupuesto{
+    position: fixed;
+    inset:0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .selector-presupuesto{
+    border-top-color: #000;
+    margin: 40px auto;
+  }
+
+  #listaPresupuestos{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+  }
+
+  #modalSeleccionPresupuesto h2 {
+    font-size: 48px;
+  }
+
+  .pases-field {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    box-sizing: border-box;
+  }
+
+  .pase-horario {
+    border: 1px solid;
+    border-radius: 16px;
+
+    box-sizing: border-box;
+    margin: 35px;
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .pase-titulo {
+    font-size: 38px;
+    font-weight: 500;
+    color: #5c2483;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .horario-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 100px;
+    margin: 40px;
+  }
+
+  .time-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .time-field label {
+    font-size: 30px;
+    font-weight: 400;
+    margin-bottom: 5px;
+  }
+
+  .time-field input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .btnAddPase-div {
+    padding: 0px 35px 0px 35px;
+  }
+
+  .pase-button {
+    width: 80px;
+    font-size: 20px;
+    padding: 0;
+    height: 100%;
+  }
+
+  .pase-add {
+    background-color: #1a73e8;
+  }
+
+  .pase-remove {
+    background-color: #d93025;
+  }
+
+
+</style>

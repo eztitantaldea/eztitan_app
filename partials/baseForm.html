@@ -1,0 +1,111 @@
+    <div class="field apartado">
+      <label class="label-title" for="<?= docType + '-herria' ?>">Herria <span class="required">*</span></label>
+      <input id="<?= docType + '-herria' ?>" name="<?= docType + '-herria' ?>" required>
+    </div>
+
+    <div class="field apartado">
+      <label class="label-title" for="<?= docType + '-probintzia' ?>">Probintzia <span class="required">*</span></label>
+      <input id="<?= docType + '-probintzia' ?>" name="<?= docType + '-probintzia' ?>" required>
+    </div>
+
+
+    <div class="field apartado fechas-group">
+      <div class="fecha-item">
+        <label class="label-title" for="<?= docType + '-dataInicio' ?>">Data <span class="required">*</span></label>
+        <input class="secondary-text" type="date" id="<?= docType + '-dataInicio' ?>" name="<?= docType + '-dataInicio' ?>" required>
+      </div>
+
+      <div id="<?= 'container-' + docType + '-dataFin' ?>" class="fecha-item">
+        <label class="label-title" for="<?= docType + '-dataFin' ?>">Amaiera-data</label>
+        <input class="secondary-text" type="date" id="<?= docType + '-dataFin' ?>" name="<?= docType + '-dataFin' ?>">
+      </div>
+    </div>
+
+    <div class="field apartado checkbox-group">
+      <div class="flex-row-title">
+        <label>Iraupena <span class="required">*</span></label>
+        <button type="button" id="<?= docType + '-btnIncluirIraupena' ?>" class="pdf-toggle">Título</button>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="iraupena2" name="<?= docType + '-iraupena' ?>" value="2" required>
+        <label class="radio-option-inner" for="iraupena2">2 ordu</label>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="iraupena3" name="<?= docType + '-iraupena' ?>" value="3">
+        <label class="radio-option-inner" for="iraupena3">3 ordu</label>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="iraupena4" name="<?= docType + '-iraupena' ?>" value="4">
+        <label class="radio-option-inner" for="iraupena4">4 ordu</label>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="iraupena4.5" name="<?= docType + '-iraupena' ?>" value="4.5">
+        <label class="radio-option-inner" for="iraupena4.5">4,5 ordu (Salbuespena)</label>
+      </div>
+    </div>
+
+    <?!= include('partials/ordutegia', { docType: docType }); ?>
+
+    <div class="field apartado checkbox-group">
+      <div class="flex-row-title">
+        <label>Ekipoa <span class="required">*</span></label>
+        <button type="button" id="<?= docType + '-btnIncluirEkipoa' ?>" class="pdf-toggle">Título</button>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="<?= docType + '-ekipoWithout' ?>" name="<?= docType + '-ekipoa' ?>" value="WITHOUT" required>
+        <label class="radio-option-inner" for="ekipoWithout">Sin equipo</label>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="<?= docType + '-ekipo8500' ?>" name="<?= docType + '-ekipoa' ?>" value="8500">
+        <label class="radio-option-inner" for="ekipo8500">Equipo 8500W</label>
+      </div>
+
+      <div class="radio-option secondary-text">
+        <input type="radio" id="<?= docType + '-ekipo17000' ?>" name="<?= docType + '-ekipoa' ?>" value="17000">
+        <label class="radio-option-inner" for="ekipo17000">Equipo 17000W</label>
+      </div>
+    </div>
+
+
+    <div class="field apartado checkbox-group">
+      <label class="label-title">Gehigarriak</label>
+
+
+      <div class="flex-row-option">
+        <input type="checkbox" id="<?= docType + '-haizeak' ?>" name="<?= docType + '-haizeak' ?>">
+        <label class="checkbox-option checkbox-option-inner" for="<?= docType + '-haizeak' ?>">Haizeak</label>
+        <button type="button" id="<?= docType + '-btnIncluirHaizeak' ?>" class="pdf-toggle">Título</button>
+      </div>
+
+      <input type="checkbox" id="<?= docType + '-afaria' ?>" name="<?= docType + '-afaria' ?>">
+      <label class="checkbox-option checkbox-option-inner" for="<?= docType + '-afaria' ?>">Afaria</label>
+
+      <div class="checkbox-with-input">
+        <input type="checkbox" id="<?= docType + '-sonExtra' ?>" name="<?= docType + '-sonExtra' ?>">
+        <label class="checkbox-option checkbox-option-inner" for="<?= docType + '-sonExtra' ?>">Sonorización extra:</label>
+        <input class="secondary-text sonExtraInput" type="number" id="<?= docType + '-precioSon' ?>" name="<?= docType + '-precioSon' ?>" placeholder="Prezioa" min="0">
+        <label class="money">€</label>
+      </div>
+
+      <input type="checkbox" id="<?= docType + '-fueraNavarra' ?>" name="<?= docType + '-fueraNavarra' ?>">
+      <label class="checkbox-option checkbox-option-inner" for="<?= docType + '-fueraNavarra' ?>">Nafarroatik kanpo</label>
+
+      <!--<?!= include('partials_presupuesto_otros'); ?>-->
+    </div>
+
+    <div class="field apartado checkbox-group">
+      <input type="checkbox" id="<?= docType + '-mantenerWord' ?>" name="<?= docType + '-mantenerWord' ?>">
+      <label class="checkbox-option" for="<?= docType + '-mantenerWord' ?>"> Mantener archivo editable (Word)</label>
+    </div>
+
+    <? 
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); } 
+    ?>
+    <button id="<?= docType + '-btnSubmit' ?>" class="label-title generate-button" type="submit">Sortu <?= capitalize(docType) ?></button>
+

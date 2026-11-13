@@ -1,0 +1,32 @@
+<script>
+  const state = {
+    incluirIraupena: false,
+    incluirEkipoa: false,
+    incluirHaizeak: false,
+  };
+
+  const sections = {
+    menu: $('mainMenu'),
+    presupuesto: $('formPresupuesto'),
+    factura: $('formFaktura'),
+    submenuFactura: $('submenuFactura'),
+    contrato: $('formContrato'),
+  };
+
+  const btnMenu = $('btnMenu');
+
+  function showSection(name) {
+    Object.values(sections).forEach(s => s.classList.add('hidden'));
+    if(name=='factura'){
+      sections['submenuFactura'].classList.remove('hidden');
+    }else{
+      sections[name].classList.remove('hidden');
+    }
+    btnMenu.classList.toggle('hidden', name === 'menu');
+  }
+
+  $('btnPresupuesto').onclick = () => showSection('presupuesto');
+  $('btnFactura').onclick = () => showSection('factura');
+  $('btnContrato').onclick = () => showSection('contrato');
+  btnMenu.onclick = () => showSection('menu');
+</script>

@@ -1,0 +1,167 @@
+<script>
+const formAurrekontu = $('aurrekontuaForm');
+const btnSubmit = $('aurrekontua-btnSubmit');
+
+const chkHaizeak = $('aurrekontua-haizeak');
+const btnHaizeak = $('aurrekontua-btnIncluirHaizeak');
+const chkSon = $('aurrekontua-sonExtra');
+const precioSon = $('aurrekontua-precioSon');
+
+precioSon.disabled = true;
+btnHaizeak.disabled = true;
+btnHaizeak.classList.remove('active');
+
+chkSon.onchange = () => {
+  precioSon.disabled = !chkSon.checked;
+  precioSon.required = chkSon.checked;
+  if (!chkSon.checked) precioSon.value = '';
+};
+
+chkHaizeak.onchange = () => {
+  if (chkHaizeak.checked) {
+    btnHaizeak.disabled = false;
+  } else {
+    btnHaizeak.disabled = true;
+    state.incluirHaizeak = false;
+    btnHaizeak.classList.remove('active');
+  }
+};
+
+$('aurrekontua-btnIncluirIraupena').onclick = e => {
+  state.incluirIraupena = !state.incluirIraupena;
+  e.target.classList.toggle('active', state.incluirIraupena);
+};
+
+$('aurrekontua-btnIncluirEkipoa').onclick = e => {
+  state.incluirEkipoa = !state.incluirEkipoa;
+  e.target.classList.toggle('active', state.incluirEkipoa);
+};
+
+btnHaizeak.onclick = e => {
+  if (btnHaizeak.disabled) return;
+  state.incluirHaizeak = !state.incluirHaizeak;
+  btnHaizeak.classList.toggle('active', state.incluirHaizeak);
+};
+
+const presupuestos = [];
+
+formAurrekontu.onsubmit = e => {
+  e.preventDefault();
+  btnSubmit.disabled = true;
+
+  const raw = getFormData(formAurrekontu);
+  const cleaned = Object.fromEntries(
+    Object.entries(raw).map(([key, value]) => [key.replace(/^aurrekontua-/, ''), value])
+  );
+
+  const data = {
+    ...cleaned,
+    dataInicio: formatDate(cleaned.dataInicio),
+    dataFin: formatDate(cleaned.dataFin),
+    iraupena: getRadioValue('aurrekontua-iraupena'),
+    ekipoa: getRadioValue('aurrekontua-ekipoa'),
+    incluirIraupena: state.incluirIraupena,
+    incluirEkipoa: state.incluirEkipoa,
+    incluirHaizeak: state.incluirHaizeak,
+    word: cleaned.mantenerWord === 'on'
+  };
+
+  Toast.show("Aurrekontua sortzen…", "loading");
+
+  google.script.run
+    .withSuccessHandler(file => {
+      Toast.show("Aurrekontua sortuta!", "success");
+      btnSubmit.disabled = false;
+      presupuestos.push({
+        id: file.id,
+        name: file.name,
+        viewUrl: file.viewUrl,
+        downloadUrl: file.downloadUrl
+      });
+      renderPresupuestos();
+    })
+    .withFailureHandler(err => {
+      Toast.show(err.message || "Errorea", "error");
+      btnSubmit.disabled = false;
+    })
+    .submitDokumentua(data, 'aurrekontua');
+};
+
+function renderPresupuestos() {
+  const wrapper = $('aurrekontuaList');
+  const container = $('aurrekontuaItems');
+
+  if (!presupuestos.length) {
+    wrapper.classList.add('hidden');
+    return;
+  }
+
+  wrapper.classList.remove('hidden');
+  container.innerHTML = '';
+
+  presupuestos.forEach((p, index) => {
+    const div = document.createElement('div');
+    div.className = 'presupuesto-item';
+
+    div.innerHTML = `
+        <span class="presupuesto-name">${p.name}</span>
+        <div class="presupuesto-actions">
+          <button class="pdf-action-button" data-action="view">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
+          </button>
+          <button class="pdf-action-button" data-action="download">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M12 3v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6V3h2zM5 19h14v2H5z"/>
+            </svg>
+          </button>
+          <button class="pdf-action-button" data-action="delete">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M6 7h12l-1 14H7L6 7zm3-4h6l1 2H8l1-2z"/>
+            </svg>
+          </button>
+        </div>
+    `;
+
+    const [btnView, btnDownload, btnDelete] = div.querySelectorAll('button');
+
+    const pdfModal = $('pdfModal');
+    const pdfIframe = $('pdfIframe');
+    const pdfClose = $('pdfClose');
+
+    btnView.onclick = () => {
+      pdfIframe.src = p.viewUrl;
+      pdfModal.classList.remove('hidden');
+    };
+
+    pdfClose.onclick = () => {
+      pdfModal.classList.add('hidden');
+      pdfIframe.src = '';
+    };
+
+    btnDownload.onclick = () => window.open(p.downloadUrl, '_blank');
+    btnDelete.onclick = () => deletePresupuesto(index);
+
+    container.appendChild(div);
+  });
+}
+
+function deletePresupuesto(index) {
+  const p = presupuestos[index];
+  if (!confirm(`Eliminar ${p.name}?`)) return;
+  Toast.show("Aurrekontua ezabatzen...", "loading");
+
+  google.script.run
+    .withSuccessHandler(() => {
+      presupuestos.splice(index, 1);
+      renderPresupuestos();
+      Toast.show("Aurrekontua ezabatuta", "success");
+    })
+    .withFailureHandler(e => {
+      Toast.show(e.message || "Error al eliminar", "error");
+    })
+    .deleteDokumentua(p.id);
+}
+
+</script>

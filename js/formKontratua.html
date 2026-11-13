@@ -1,0 +1,250 @@
+<script>
+const formKontratua = $('kontratuaForm');
+const ordutegiaField = $('kontratua-ordutegia-field');
+
+const btnIncluirHaizeakKontratua = $('kontratua-btnIncluirHaizeak')
+const btnIncluirIraupenaKontratua = $('kontratua-btnIncluirIraupena')
+const btnIncluirEkipoaKontratua = $('kontratua-btnIncluirEkipoa')
+
+const dataFinKontratua = $('container-kontratua-dataFin')
+const precioSonKontratua = $('kontratua-precioSon');
+const btnAddPase = $('kontratua-btnAddPase');
+const btnRemovePase = $('kontratua-btnRemovePase')
+const inicioPaseInput = $("kontratua-inicioPase1");
+const inicioPase2Input = $("kontratua-inicioPase2")
+const finPase2Input = $("kontratua-finPase2")
+precioSonKontratua.disabled = true;
+
+ordutegiaField.classList.remove("hidden")
+btnIncluirHaizeakKontratua.classList.add('hidden');
+btnIncluirIraupenaKontratua.classList.add('hidden');
+btnIncluirEkipoaKontratua.classList.add('hidden');
+
+dataFinKontratua.classList.add('hidden')
+dataFinKontratua.disabled = true
+
+btnAddPase.addEventListener('click', () => {
+  btnAddPase.disabled = true;
+  $('kontratua-pase2').classList.remove('hidden');
+});
+
+btnRemovePase.addEventListener('click', () => {
+  btnAddPase.disabled = false;
+  $('kontratua-pase2').classList.add('hidden');
+  inicioPase2Input.value = ""
+  finPase2Input.value = ""
+});
+
+function checkOrdutegia(ordutegia, iraupena) {
+  let duracionTotal = 0;
+
+  const pases = [];
+
+  for (const [inicio, fin] of ordutegia) {
+    // Ignorar pases vacíos
+    if (!inicio || !fin) continue;
+
+    const [horaInicio, minutoInicio] = inicio.split(":").map(Number);
+    const [horaFin, minutoFin] = fin.split(":").map(Number);
+
+    const inicioMinutos = horaInicio * 60 + minutoInicio;
+    const finMinutos = horaFin * 60 + minutoFin;
+
+    let duracion = finMinutos - inicioMinutos;
+
+    // Si termina después de medianoche
+    if (duracion < 0) {
+      duracion += 24 * 60;
+    }
+
+    duracionTotal += duracion;
+
+    pases.push({
+      inicio: inicioMinutos,
+      fin: finMinutos,
+      duracion: duracion
+    });
+  }
+
+  // --------------------------------
+  // Comprobar solapamiento
+  // --------------------------------
+
+  if (pases.length === 2) {
+
+    const pase1 = pases[0];
+    const pase2 = pases[1];
+
+    if (pase2.inicio < pase1.fin) {
+
+      inicioPaseInput.setCustomValidity(
+        "El segundo pase no puede comenzar antes de que termine el primer pase."
+      );
+
+      return false;
+    }
+  }
+
+  // --------------------------------
+  // Comprobar duración total
+  // --------------------------------
+
+  const iraupena_minutes = Number(iraupena) * 60;
+
+  console.log(iraupena_minutes, duracionTotal)
+  if (iraupena_minutes !== duracionTotal) {
+    inicioPaseInput.setCustomValidity(
+      `La duración del concierto debe ser de ${iraupena} horas exactamente.`
+    );
+
+    return false;
+  }
+
+
+
+  // Todo correcto
+  inicioPaseInput.setCustomValidity("");
+
+  return true;
+}
+
+const kontratuak = [];
+
+formKontratua.addEventListener("submit", function(e) {
+
+  e.preventDefault();
+  const raw = getFormData(formKontratua);
+  const cleaned = Object.fromEntries(
+    Object.entries(raw).map(([key, value]) => [key.replace(/^kontratua-/, ''), value])
+  );
+
+  ordutegia = [[cleaned.inicioPase1, cleaned.finPase1],
+               [cleaned.inicioPase2, cleaned.finPase2]]
+
+  const valido = checkOrdutegia(
+    ordutegia,
+    getRadioValue('kontratua-iraupena')
+  );
+
+  console.log(valido)
+  formKontratua.reportValidity()
+  if (!valido) {
+    return;
+  }
+  btnSubmit.disabled = true;
+
+  const data = {
+    ...cleaned,
+    ordutegia,
+    dataInicio: formatDate(cleaned.dataInicio),
+    dataFin: formatDate(cleaned.dataFin),
+    iraupena: getRadioValue('kontratua-iraupena'),
+    ekipoa: getRadioValue('kontratua-ekipoa'),
+    incluirIraupena: state.incluirIraupena,
+    incluirEkipoa: state.incluirEkipoa,
+    incluirHaizeak: state.incluirHaizeak,
+    word: cleaned.mantenerWord === 'on'
+  };
+
+  Toast.show("Kontratua sortzen…", "loading");
+
+  google.script.run
+    .withSuccessHandler(file => {
+      Toast.show("Kontratua sortuta!", "success");
+      btnSubmit.disabled = false;
+      kontratuak.push({
+        id: file.id,
+        name: file.name,
+        viewUrl: file.viewUrl,
+        downloadUrl: file.downloadUrl
+      });
+      renderKontratuak();
+    })
+    .withFailureHandler(err => {
+      Toast.show(err.message || "Errorea", "error");
+      btnSubmit.disabled = false;
+    })
+    .submitDokumentua(data, 'kontratua');
+});
+
+function renderKontratuak() {
+  const wrapper = $('kontratuaList');
+  const container = $('kontratuaItems');
+
+  if (!kontratuak.length) {
+    wrapper.classList.add('hidden');
+    return;
+  }
+
+  wrapper.classList.remove('hidden');
+  container.innerHTML = '';
+
+  kontratuak.forEach((p, index) => {
+    const div = document.createElement('div');
+    div.className = 'kontratua-item';
+
+    div.innerHTML = `
+        <span class="kontratua-name">${p.name}</span>
+        <div class="kontratua-actions">
+          <button class="pdf-action-button" data-action="view">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
+          </button>
+          <button class="pdf-action-button" data-action="download">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M12 3v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6V3h2zM5 19h14v2H5z"/>
+            </svg>
+          </button>
+          <button class="pdf-action-button" data-action="delete">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M6 7h12l-1 14H7L6 7zm3-4h6l1 2H8l1-2z"/>
+            </svg>
+          </button>
+        </div>
+    `;
+
+    const [btnView, btnDownload, btnDelete] = div.querySelectorAll('button');
+
+    const pdfModal = $('pdfModal');
+    const pdfIframe = $('pdfIframe');
+    const pdfClose = $('pdfClose');
+
+    btnView.onclick = () => {
+      pdfIframe.src = p.viewUrl;
+      pdfModal.classList.remove('hidden');
+    };
+
+    pdfClose.onclick = () => {
+      pdfModal.classList.add('hidden');
+      pdfIframe.src = '';
+    };
+
+    btnDownload.onclick = () => window.open(p.downloadUrl, '_blank');
+    btnDelete.onclick = () => deleteKontratua(index);
+
+    container.appendChild(div);
+  });
+
+  function deleteKontratua(index) {
+    const p = kontratuak[index];
+    if (!confirm(`Eliminar ${p.name}?`)) return;
+    console.log(index)
+
+    Toast.show("Kontratua ezabatzen...", "loading");
+
+    google.script.run
+      .withSuccessHandler(() => {
+        kontratuak.splice(index, 1);
+        renderKontratuak();
+        Toast.show("Kontratua ezabatuta", "success");
+      })
+      .withFailureHandler(e => {
+        Toast.show(e.message || "Error al eliminar", "error");
+      })
+    .deleteDokumentua(p.id);
+  }
+}
+ 
+
+</script>

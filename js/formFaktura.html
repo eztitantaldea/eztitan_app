@@ -1,0 +1,295 @@
+<script>
+  // Referencias
+const formFaktura = $('fakturaForm');
+const mainMenu = $('mainMenu');
+const btnFactura = $('btnFactura');
+const formFactura = $('formFaktura');
+
+const btnDesdeCero = $('btnDesdeCero');
+const btnDesdePresupuesto = $('btnDesdePresupuesto');
+const submenuFactura = $('submenuFactura');
+
+const btnIncluirHaizeak = $('faktura-btnIncluirHaizeak')
+const btnIncluirIraupena = $('faktura-btnIncluirIraupena')
+const btnIncluirEkipoa = $('faktura-btnIncluirEkipoa')
+
+const dataFin = $('container-faktura-dataFin')
+
+/*// Al pulsar "Facturas"
+btnFactura.addEventListener('click', () => {
+  mainMenu.classList.add('hidden');      // ocultar menú principal
+  facturaOptions.classList.remove('hidden'); // mostrar opciones
+});*/
+
+function initiateFakturaForm(){
+  btnIncluirHaizeak.classList.add('hidden');
+  btnIncluirIraupena.classList.add('hidden');
+  btnIncluirEkipoa.classList.add('hidden');
+  submenuFactura.classList.add('hidden');
+  dataFin.classList.add('hidden')
+  dataFin.disabled = true
+  formFactura.classList.remove('hidden');
+  limpiarFormulario()
+
+}
+
+// Crear factura desde cero
+btnDesdeCero.addEventListener('click', () => {
+  initiateFakturaForm()
+});
+
+// Crear factura desde presupuesto
+btnDesdePresupuesto.addEventListener('click', async () => {
+  initiateFakturaForm()
+  showSeleccionarPresupuesto();
+});
+
+const modal = $('modalSeleccionPresupuesto');
+const spinner = $('spinnerSeleccionPresupuesto');
+const lista = $('listaPresupuestos');
+const btnCancelar = $('cancelarSeleccionPresupuesto');
+
+// Variable global para cachear los presupuestos
+window.presupuestosCache = window.presupuestosCache || [];
+
+function showSeleccionarPresupuesto() {
+  modal.classList.remove('hidden');       // Mostrar modal
+  spinner.classList.remove('hidden');     // Mostrar spinner
+  lista.classList.add('hidden');
+  lista.innerHTML = '';                   // Limpiar lista de botones
+
+  // Si ya tenemos presupuestos cacheados, los usamos directamente
+  if (window.presupuestosCache.length > 0) {
+    renderListaPresupuestos(window.presupuestosCache);
+    return;
+  }
+
+  // Si no hay cache, llamamos a Apps Script
+  google.script.run
+    .withSuccessHandler(presupuestos => {
+      // Guardar en cache
+      window.presupuestosCache = presupuestos || [];
+      renderListaPresupuestos(window.presupuestosCache);
+    })
+    .withFailureHandler(err => {
+      spinner.classList.add('hidden');
+      lista.innerHTML = `<div style="color:red;">Error al cargar presupuestos: ${err.message || err}</div>`;
+    })
+    .obtenerPresupuestos();
+}
+
+// Función para renderizar la lista de presupuestos
+function renderListaPresupuestos(presupuestos) {
+  spinner.classList.add('hidden'); // Ocultar spinner
+  lista.classList.remove('hidden');
+  
+  if (!presupuestos || presupuestos.length === 0) {
+    lista.innerHTML = `<div style="font-size:18px;color:#555;">No se encontraron presupuestos.</div>`;
+    return;
+  }
+
+  lista.innerHTML = ''; // Limpiar cualquier contenido previo
+  presupuestos.forEach(p => {
+    const btn = document.createElement('button');
+    btn.textContent = p.name;
+    btn.className = 'menu-button opcion-presupuesto-selector';
+    btn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      rellenarFormularioConPresupuesto(p.id);
+    });
+    lista.appendChild(btn);
+  });
+}
+
+// Cancelar
+btnCancelar.addEventListener('click', () => {
+  modal.classList.add('hidden');
+});
+
+
+// Cancelar
+btnCancelar.addEventListener('click', () => {
+  modal.classList.add('hidden');
+});
+
+// Función que rellena el formulario con los datos del presupuesto seleccionado
+function rellenarFormularioConPresupuesto(presupuestoId) {
+  google.script.run
+    .withSuccessHandler(datos => {
+      rellenarFormulario(datos);
+      submenuFactura.classList.add('hidden');
+      formFactura.classList.remove('hidden');
+    })
+    .obtenerDatosPresupuesto(presupuestoId);
+}
+
+// Función para limpiar formulario
+function limpiarFormulario() {
+  $('faktura-bezeroa').value = '';
+  $('faktura-ifk').value = '';
+  $('faktura-helbidea').value = '';
+  $('faktura-herria').value = '';
+  $('faktura-probintzia').value = '';
+  $('faktura-dataInicio').value = '';
+  $('faktura-precioSon').value = '';
+  
+  const iraupenaRadios = document.querySelectorAll('input[name="faktura-iraupena"]');
+  iraupenaRadios.forEach(r => r.checked = false);
+
+  const ekipoRadios = document.querySelectorAll('input[name="faktura-ekipoa"]');
+  ekipoRadios.forEach(r => r.checked = false);
+
+  // Checkboxes
+  $('faktura-haizeak').checked = false;
+  $('faktura-afaria').checked = false;
+  $('faktura-sonExtra').checked = false;
+  $('faktura-fueraNavarra').checked = false;
+}
+
+// Función para rellenar formulario con datos importados
+function rellenarFormulario(datos) {
+  $('faktura-herria').value = datos.herria || '';
+  $('faktura-probintzia').value = datos.probintzia || '';
+  document.querySelector(`input[name="faktura-iraupena"][value="${datos.iraupena}"]`).checked = true;
+  document.querySelector(`input[name="faktura-ekipoa"][value="${datos.ekipoa}"]`).checked = true;
+
+  $('faktura-haizeak').checked = !!datos.haizeak;
+  $('faktura-afaria').checked = !!datos.afaria;
+  $('faktura-sonExtra').checked = !!datos.sonExtra;
+  if (datos.precioSon) $('faktura-precioSon').value = datos.precioSon;
+  $('faktura-fueraNavarra').checked = !!datos.fueraNavarra;
+
+  if (!datos.dataFin) {
+    $('faktura-dataInicio').value = convertirFechaISO(datos.dataInicio);
+  }
+}
+
+function convertirFechaISO(fecha) {
+  if (!fecha) return '';
+  const [dia, mes, anio] = fecha.split('/');
+  return `${anio}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`;
+}
+
+const fakturak = [];
+
+formFaktura.onsubmit = e => {
+  e.preventDefault();
+  btnSubmit.disabled = true;
+
+  const raw = getFormData(formFaktura);
+  const cleaned = Object.fromEntries(
+    Object.entries(raw).map(([key, value]) => [key.replace(/^faktura-/, ''), value])
+  );
+
+  const data = {
+    ...cleaned,
+    dataInicio: formatDate(cleaned.dataInicio),
+    dataFin: formatDate(cleaned.dataFin),
+    iraupena: getRadioValue('faktura-iraupena'),
+    ekipoa: getRadioValue('faktura-ekipoa'),
+    incluirIraupena: state.incluirIraupena,
+    incluirEkipoa: state.incluirEkipoa,
+    incluirHaizeak: state.incluirHaizeak,
+    word: cleaned.mantenerWord === 'on'
+  };
+
+  Toast.show("Faktura sortzen…", "loading");
+
+  google.script.run
+    .withSuccessHandler(file => {
+      Toast.show("Faktura sortuta!", "success");
+      btnSubmit.disabled = false;
+      fakturak.push({
+        id: file.id,
+        name: file.name,
+        viewUrl: file.viewUrl,
+        downloadUrl: file.downloadUrl
+      });
+      limpiarFormulario()
+      renderFakturak();
+    })
+    .withFailureHandler(err => {
+      Toast.show(err.message || "Errorea", "error");
+      btnSubmit.disabled = false;
+    })
+    .submitDokumentua(data, 'faktura');
+};
+
+function renderFakturak() {
+  const wrapper = $('fakturaList');
+  const container = $('fakturaItems');
+
+  if (!fakturak.length) {
+    wrapper.classList.add('hidden');
+    return;
+  }
+
+  wrapper.classList.remove('hidden');
+  container.innerHTML = '';
+
+  fakturak.forEach((p, index) => {
+    const div = document.createElement('div');
+    div.className = 'faktura-item';
+
+    div.innerHTML = `
+        <span class="faktura-name">${p.name}</span>
+        <div class="faktura-actions">
+          <button class="pdf-action-button" data-action="view">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
+          </button>
+          <button class="pdf-action-button" data-action="download">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M12 3v10.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6V3h2zM5 19h14v2H5z"/>
+            </svg>
+          </button>
+          <button class="pdf-action-button" data-action="delete">
+            <svg class="button-icon" viewBox="0 0 24 24">
+              <path d="M6 7h12l-1 14H7L6 7zm3-4h6l1 2H8l1-2z"/>
+            </svg>
+          </button>
+        </div>
+    `;
+
+    const [btnView, btnDownload, btnDelete] = div.querySelectorAll('button');
+
+    const pdfModal = $('pdfModal');
+    const pdfIframe = $('pdfIframe');
+    const pdfClose = $('pdfClose');
+
+    btnView.onclick = () => {
+      pdfIframe.src = p.viewUrl;
+      pdfModal.classList.remove('hidden');
+    };
+
+    pdfClose.onclick = () => {
+      pdfModal.classList.add('hidden');
+      pdfIframe.src = '';
+    };
+
+    btnDownload.onclick = () => window.open(p.downloadUrl, '_blank');
+    btnDelete.onclick = () => deleteFaktura(index);
+
+    container.appendChild(div);
+  });
+
+  function deleteFaktura(index) {
+  const p = fakturak[index];
+  if (!confirm(`Eliminar ${p.name}?`)) return;
+  Toast.show("Faktura ezabatzen...", "loading");
+
+  google.script.run
+    .withSuccessHandler(() => {
+      fakturak.splice(index, 1);
+      renderFakturak();
+      Toast.show("Faktura ezabatuta", "success");
+    })
+    .withFailureHandler(e => {
+      Toast.show(e.message || "Error al eliminar", "error");
+    })
+    .deleteDokumentua(p.id);
+}
+}
+
+</script>

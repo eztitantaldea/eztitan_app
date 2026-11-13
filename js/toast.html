@@ -1,0 +1,28 @@
+<script>
+const Toast = (() => {
+  let timeout = null;
+
+  const toast = $('toast');
+  const text = $('toastText');
+  const spinner = $('toastSpinner');
+
+  function show(message, type = 'success', duration = 4000) {
+    text.textContent = message;
+    toast.className = `toast show ${type}`;
+    spinner.classList.toggle('hidden', type !== 'loading');
+
+    if (timeout) clearTimeout(timeout);
+    if (type !== 'loading') {
+      timeout = setTimeout(hide, duration);
+    }
+  }
+
+  function hide() {
+    toast.classList.remove('show');
+  }
+
+  $('toastClose').onclick = hide;
+
+  return { show, hide };
+})();
+</script>

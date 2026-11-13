@@ -1,0 +1,29 @@
+<div id="formContrato" class="card hidden">
+  <div class="field apartado">
+    <h2>Kontratu Sortzailea</h2>
+    <span class="required secondary-text">* Indica que la sección es obligatoria</span>
+  </div>
+  <form id="kontratuaForm" novalidate>
+    <div class="field apartado">
+      <label class="label-title" for="kontratua-bezeroa">Bezeroaren Izena <span class="required">*</span></label>
+      <input id="kontratua-bezeroa" name="kontratua-bezeroa" required>
+    </div>
+    <div class="field apartado">
+      <label class="label-title" for="kontratua-ifk">NIF/IFK<span class="required">*</span></label>
+      <input id="kontratua-ifk" name="kontratua-ifk" required>
+    </div>
+    <div class="field apartado">
+      <label class="label-title" for="kontratua-ordezkaria">Ordezkaria<span class="required">*</span></label>
+      <input id="kontratua-ordezkaria" name="kontratua-ordezkaria" required>
+    </div>
+    <div class="field apartado">
+      <label class="label-title" for="kontratua-helbidea">Helbidea<span class="required">*</span></label>
+      <input id="kontratua-helbidea" name="kontratua-helbidea" required>
+    </div>
+    
+
+    <?!= include('partials/baseForm', { docType: 'kontratua' }); ?>
+  </form>
+
+  <?!= include('partials/dokumentuakList', { docType: 'kontratua' }); ?>
+</div>

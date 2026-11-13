@@ -1,0 +1,23 @@
+<div id="formPresupuesto" class="card hidden">
+  <div class="field apartado">
+    <h2>Aurrekontu Sortzailea</h2>
+    <span class="required secondary-text">* Indica que la sección es obligatoria</span>
+  </div>
+
+  <form id="aurrekontuaForm" class="baseForm">
+  <?!= include('partials/baseForm', { docType: 'aurrekontua' }); ?>
+  </form>
+
+  <?!= include('partials/dokumentuakList', { docType: 'aurrekontua' }); ?>
+  </div>
+</div>
+
+<div id="pdfModal" class="pdf-modal hidden">
+  <div class="pdf-modal-content">
+    <div class="pdf-modal-header">
+      <button id="pdfClose" class="pdf-close">✕</button>
+    </div>
+    <iframe id="pdfIframe" src=""></iframe>
+  </div>
+</div>
+
