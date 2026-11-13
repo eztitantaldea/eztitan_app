@@ -60,11 +60,9 @@ const Docs = {
     }else if(doctype === 'kontratua'){
       nombreFinal = this.createKontratua(map, rawData, data)
     }
-    
     const copy = DriveApp.getFileById(templateId).makeCopy(nombreFinal, folder);
     const doc = DocumentApp.openById(copy.getId());
     const body = doc.getBody();
-    Logger.log(map)
     Object.entries(map).forEach(([k, v]) => body.replaceText(k, v || ''));
     doc.saveAndClose();
 
@@ -72,8 +70,6 @@ const Docs = {
     pdfFile.setDescription(JSON.stringify(descriptionData));
 
     if (!data.word) copy.setTrashed(true);
-
-    Logger.log(`https://drive.google.com/file/d/${pdfFile.getId()}/preview`)
 
     return {
       id: pdfFile.getId(),
@@ -84,7 +80,6 @@ const Docs = {
   },
 
   createAurrekontua(data, rawData, folderId) {
-
     let nombreFinal = data.dokumentuIzena;
     if (data.incluirIraupena) nombreFinal += ` - ${data.iraupena}h`;
     if (data.incluirEkipoa) nombreFinal += ` - ${CONFIG.TEXTS.EKIPOA.TITLE[data.ekipo.type]}`;

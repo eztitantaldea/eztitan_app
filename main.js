@@ -3,19 +3,28 @@
  * Se ejecuta al enviar el formulario y coordina el flujo completo:
  * parseo de datos, validaciones, cálculo de precios y generación del presupuesto.
  */
+WORK = "WORK";
+const url = ScriptApp.getService().getUrl()
+if(url.includes('/dev')){
+  WORK = "PLAY";
+}
 
 function doGet(e) {
   Session.getActiveUser()
   const action = e.parameter.action;
-  
-  // Caso 1: Servir HTML
+  const pricing = new Pricing()
+
   if (!action) {
-    return HtmlService.createTemplateFromFile('index')
+    template = HtmlService.createTemplateFromFile('index')
+    template.global = {
+      "duraciones": Object.keys(pricing.prices.duraciones),
+      "equipos": Object.keys(pricing.prices.equipos)
+    }
+    return template
       .evaluate()
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
 
-  // Caso 2: Servir PDF con CORS
   if (action === "download") {
     const fileId = e.parameter.id;
     if (!fileId) {
@@ -40,7 +49,6 @@ function doGet(e) {
     }
   }
 
-  // Cualquier otro action
   return ContentService.createTextOutput("Acción desconocida")
     .setMimeType(ContentService.MimeType.TEXT)
     .setHeader("Access-Control-Allow-Origin", "*");
@@ -49,14 +57,8 @@ function doGet(e) {
 
 function submitDokumentua(rawData, doctype) {
   try {
-    const url = ScriptApp.getService().getUrl()
-    work = "WORK";
-    if(url.includes('/dev')){
-      work = "PLAY";
-    }
-    const env_data = CONFIG.ENVIRONMENTS[work];
-
-    const pricing = new Pricing(env_data);
+    const env_data = CONFIG.ENVIRONMENTS[WORK];
+    const pricing = new Pricing()
     const parsed = FormParser.parseFromObject(rawData, env_data, pricing);
     const prices = pricing.calculate(parsed);
 
@@ -68,6 +70,25 @@ function submitDokumentua(rawData, doctype) {
     return { ok: false, error: err.message };
   }
 }
+
+// function obtenerOpcionesPresupuestos() {
+//   const idSpreadsheet = '1KZVGm5eMrM_cUnNtv4LYYjC1PaCvG3ZB-tCTFiR9AXU';
+  
+//   try {
+//     const ss = SpreadsheetApp.openById(idSpreadsheet);
+//     const hoja = ss.getSheetByName('2027');
+//     const datos = hoja.getDataRange().getValues();
+
+//     duraciones = obtenerDuraciones(hoja)
+//     equipos = obtenerEkipoa(hoja)
+
+//     return {duraciones, equipos}
+
+//   } catch (error) {
+//     console.error("Error en obtenerDatosPresupuesto: " + error.message);
+//     throw new Error("No se pudo abrir el documento de Google Sheets.");
+//   }
+// }
 
 function include(filename, params = {}) {
   const tpl = HtmlService.createTemplateFromFile(filename);

@@ -5,33 +5,63 @@
  */
 
 class Pricing{
-  constructor(env_data){
-    const cache = CacheService.getScriptCache();
-    const cacheKey = `prices_${env_data.PRICING_SHEET_ID}`;
+  constructor(){
+    const idSpreadsheet = '1KZVGm5eMrM_cUnNtv4LYYjC1PaCvG3ZB-tCTFiR9AXU';
+  
+    try {
+      const ss = SpreadsheetApp.openById(idSpreadsheet);
+      const hoja = ss.getSheetByName('2027');
+      const datos = hoja.getDataRange().getValues();
+      this.obtenerDuraciones(hoja)
+      this.obtenerEkipoa(hoja)
 
-    const cached = cache.get(cacheKey);
-    let prices = {}
-    if (cached) {
-      prices = JSON.parse(cached);
-    }else{
-      const sheet = SpreadsheetApp
-        .openById(env_data.PRICING_SHEET_ID)
-        .getSheets()[0];
+      this.prices = {duraciones: this.duraciones, equipos: this.equipos}
 
-      prices = {
-        duracion: this.readMap_(sheet, 2), // B:C
-        equipo: this.readMap_(sheet, 5),   // E:F
-        extras: {
-          vientos: this.readMap_(sheet, 8),
-          ...this.readMap_(sheet, 11),
-          ...this.readMap_(sheet, 14)
-        }
-      };
+    } catch (error) {
+      console.error("Error en obtenerDatosPresupuesto: " + error.message);
+      throw new Error("No se pudo abrir el documento de Google Sheets.");
     }
+  }
+  
+  obtenerDuraciones(hoja) {
+    const lastRow = hoja.getLastRow();
+    
+    // Si no hay datos a partir de la fila 2, devolvemos un objeto vacío
+    if (lastRow < 3) return [];
 
-    cache.put(cacheKey, JSON.stringify(prices), 3600); // 1 hora
+    const range = hoja.getRange(3, 2, lastRow - 1, 2); // Columnas B y C desde la fila 2
+    const values = range.getValues();
+    
+    this.duraciones = {};
+    
+    values.forEach(row => {
+      if(row[0] !== ""){
+        this.duraciones[row[0]] = row[1]
+      }
+    })
+  }
 
-    this.prices = prices;
+  obtenerEkipoa(hoja){
+    const lastRow = hoja.getLastRow();
+    
+    // Si no hay datos a partir de la fila 2, devolvemos un objeto vacío
+    if (lastRow < 3) return [];
+
+    const range = hoja.getRange(3, 5, lastRow - 1, 8); // Columnas B y C desde la fila 2
+    const values = range.getValues();
+    
+    this.equipos = {};
+    
+    values.forEach(row => {
+      if(row[0] !== ""){
+        this.equipos[row[0]] = {
+          "baja": row[1],
+          "media": row[2],
+          "alta_laborable": row[3],
+          "alta_finde": row[4]
+        }
+      }
+    });   
   }
 
   readMap_(sheet, startCol) {
@@ -47,16 +77,8 @@ class Pricing{
     }, {});
   }
 
-  getEkipo(ekipoa) {
-
-    return {
-      type: ekipoa,
-      price: this.prices.equipo[ekipoa]
-    };
-  }
-
   calculate(data) {
-    let iraupenPrezioa = this.prices.duracion[data.iraupena];
+    let iraupenPrezioa = this.prices.duraciones[data.iraupena];
     iraupenPrezioa += data.prezioGehigarria;
 
     let subtotala = iraupenPrezioa + data.ekipo.price;

@@ -15,6 +15,14 @@
 
   const btnMenu = $('btnMenu');
 
+  renderizarDuraciones(ENTORNO_GLOBAL.duraciones, 'aurrekontua');
+  renderizarDuraciones(ENTORNO_GLOBAL.duraciones, 'faktura');
+  renderizarDuraciones(ENTORNO_GLOBAL.duraciones, 'kontratua');
+
+  renderizarEkipoak(ENTORNO_GLOBAL.equipos, 'aurrekontua');
+  renderizarEkipoak(ENTORNO_GLOBAL.equipos, 'faktura');
+  renderizarEkipoak(ENTORNO_GLOBAL.equipos, 'kontratua');
+
   function showSection(name) {
     Object.values(sections).forEach(s => s.classList.add('hidden'));
     if(name=='factura'){
@@ -28,5 +36,52 @@
   $('btnPresupuesto').onclick = () => showSection('presupuesto');
   $('btnFactura').onclick = () => showSection('factura');
   $('btnContrato').onclick = () => showSection('contrato');
+
   btnMenu.onclick = () => showSection('menu');
+
+  function renderizarDuraciones(duraciones, seccion) {
+    const contenedor = $(`${seccion}-listaIraupenas`);
+    if (!contenedor) return;
+    
+    contenedor.innerHTML = '';
+
+    duraciones.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'radio-option secondary-text';
+      
+      const inputId = `${seccion}-iraupena_${index}`;
+      const inputName = `${seccion}-iraupena`;
+      
+      div.innerHTML = `
+        <input type="radio" id="${inputId}" name="${inputName}" value="${item}" ${index === 0 ? 'required' : ''}>
+        <label class="radio-option-inner" for="${inputId}">${item} ordu</label>
+      `;
+      
+      contenedor.appendChild(div);
+    });
+  }
+
+
+  function renderizarEkipoak(equipos, seccion) {
+    const contenedor = $(`${seccion}-listaEkipoak`);
+    if (!contenedor) return;
+    
+    contenedor.innerHTML = '';
+
+    equipos.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'radio-option secondary-text';
+      
+      const inputId = `${seccion}-ekipoa_${index}`;
+      const inputName = `${seccion}-ekipoa`;
+      
+      div.innerHTML = `
+        <input type="radio" id="${inputId}" name="${inputName}" value="${item}" ${index === 0 ? 'required' : ''}>
+        <label class="radio-option-inner" for="${inputId}">${item}</label>
+      `;
+      
+      contenedor.appendChild(div);
+    });
+  }
+
 </script>
